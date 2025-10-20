@@ -50,10 +50,7 @@ interface ITabsContent extends TabPanelProps {
 }
 const TabsContent = ({ children, className, ...props }: ITabsContent) => {
   return (
-    <TabPanel
-      className={cn("border-2 border-border mt-2 p-4", className)}
-      {...props}
-    >
+    <TabPanel className={cn("mt-2 p-4", className)} {...props}>
       {children}
     </TabPanel>
   );
