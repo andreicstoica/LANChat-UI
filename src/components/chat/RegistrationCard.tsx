@@ -1,4 +1,4 @@
-import { FormEvent } from "react";
+import { type FormEvent } from "react";
 import { Card } from "@/components/retroui/Card";
 import { Text } from "@/components/retroui/Text";
 import { Input } from "@/components/retroui/Input";
@@ -27,9 +27,7 @@ export function RegistrationCard({
         <Card.Content>
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Text as="label" className="block text-sm font-medium">
-                Display name
-              </Text>
+              <label className="block text-sm font-medium">Display name</label>
               <Input
                 value={pendingUsername}
                 onChange={(event) => onUsernameChange(event.target.value)}
@@ -45,4 +43,3 @@ export function RegistrationCard({
     </div>
   );
 }
-

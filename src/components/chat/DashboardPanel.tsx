@@ -8,6 +8,38 @@ interface DashboardPanelProps {
 }
 
 export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
+  const formatUptime = (uptimeSeconds: number) => {
+    if (!Number.isFinite(uptimeSeconds)) {
+      return "--";
+    }
+
+    const totalSeconds = Math.max(0, Math.floor(uptimeSeconds));
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const parts: string[] = [];
+
+    if (days) {
+      parts.push(`${days}d`);
+    }
+
+    if (hours) {
+      parts.push(`${hours}h`);
+    }
+
+    if (minutes) {
+      parts.push(`${minutes}m`);
+    }
+
+    if (!parts.length || seconds) {
+      parts.push(`${seconds}s`);
+    }
+
+    return parts.join(" ");
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       <Card className={!isConnected ? "opacity-50" : ""}>
@@ -84,7 +116,7 @@ export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
 
       <Card className={!isConnected ? "opacity-50" : ""}>
         <Card.Header>
-          <Card.Title>Uptime (seconds)</Card.Title>
+          <Card.Title>Uptime</Card.Title>
         </Card.Header>
         <Card.Content>
           <Text
@@ -92,7 +124,7 @@ export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
               isConnected ? "text-primary" : "text-muted-foreground"
             }`}
           >
-            {isConnected ? stats.uptime.toFixed(0) : "--"}
+            {isConnected ? formatUptime(stats.uptime) : "--"}
           </Text>
           <Text className="text-sm text-muted-foreground">
             {isConnected ? "Server uptime" : "Not connected"}
@@ -102,4 +134,3 @@ export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
     </div>
   );
 }
-

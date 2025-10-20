@@ -30,9 +30,30 @@ export function useLanChat(username: string, isRegistered: boolean) {
     const socket = io(API_BASE_URL, { path: "/socket.io" });
     socketRef.current = socket;
 
+    const addLocalJoinMessage = () => {
+      const timestamp = new Date().toISOString();
+
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `local-join-${timestamp}`,
+          type: "join",
+          username: "system",
+          content: `${username} (human) joined the chat`,
+          metadata: {
+            timestamp,
+            joinedUser: username,
+            userType: "human",
+            localGenerated: true,
+          },
+        },
+      ]);
+    };
+
     const handleConnect = () => {
       setIsConnected(true);
       socket.emit("register", { username, type: "human" });
+      addLocalJoinMessage();
     };
 
     const handleDisconnect = () => {
@@ -40,7 +61,25 @@ export function useLanChat(username: string, isRegistered: boolean) {
     };
 
     const handleMessage = (incoming: Message) => {
-      setMessages((prev) => [...prev, incoming]);
+      setMessages((prev) => {
+        let nextMessages = prev;
+
+        if (
+          incoming.type === "join" &&
+          incoming.metadata?.joinedUser === username
+        ) {
+          nextMessages = prev.filter(
+            (message) =>
+              !(
+                message.type === "join" &&
+                message.metadata?.localGenerated &&
+                message.metadata.joinedUser === username
+              ),
+          );
+        }
+
+        return [...nextMessages, incoming];
+      });
     };
 
     socket.on("connect", handleConnect);
@@ -71,7 +110,64 @@ export function useLanChat(username: string, isRegistered: boolean) {
         const response = await fetch(`${API_BASE_URL}/api/history?limit=50`);
         if (!aborted && response.ok) {
           const data: HistoryResponse = await response.json();
-          setMessages(data.messages ?? []);
+          if (!data.messages) {
+            return;
+          }
+
+          setMessages((prevMessages) => {
+            const hasSelfJoin = data.messages?.some(
+              (message) =>
+                message.type === "join" &&
+                message.metadata?.joinedUser === username,
+            );
+
+            const baseMessages = hasSelfJoin
+              ? prevMessages.filter(
+                  (message) =>
+                    !(
+                      message.type === "join" &&
+                      message.metadata?.localGenerated &&
+                      message.metadata.joinedUser === username
+                    ),
+                )
+              : prevMessages;
+
+            const prevIds = new Set(baseMessages.map((message) => message.id));
+            const merged = [...baseMessages];
+
+            for (const message of data.messages ?? []) {
+              if (!prevIds.has(message.id)) {
+                merged.push(message);
+              }
+            }
+
+            return merged.sort((a, b) => {
+              const aTime = a.metadata?.timestamp
+                ? Date.parse(a.metadata.timestamp)
+                : 0;
+              const bTime = b.metadata?.timestamp
+                ? Date.parse(b.metadata.timestamp)
+                : 0;
+
+              if (Number.isNaN(aTime) && Number.isNaN(bTime)) {
+                return a.id.localeCompare(b.id);
+              }
+
+              if (Number.isNaN(aTime)) {
+                return -1;
+              }
+
+              if (Number.isNaN(bTime)) {
+                return 1;
+              }
+
+              if (aTime === bTime) {
+                return a.id.localeCompare(b.id);
+              }
+
+              return aTime - bTime;
+            });
+          });
         }
       } catch {
         if (!aborted) {
@@ -85,7 +181,7 @@ export function useLanChat(username: string, isRegistered: boolean) {
     return () => {
       aborted = true;
     };
-  }, [isRegistered]);
+  }, [isRegistered, username]);
 
   useEffect(() => {
     if (!isRegistered) {
@@ -140,4 +236,3 @@ export function useLanChat(username: string, isRegistered: boolean) {
     sendMessage,
   };
 }
-

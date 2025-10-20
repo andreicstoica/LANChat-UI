@@ -1,5 +1,8 @@
 export interface MessageMetadata {
   timestamp?: string;
+  joinedUser?: string;
+  userType?: string;
+  localGenerated?: boolean;
   [key: string]: unknown;
 }
 
@@ -28,4 +31,3 @@ export interface DashboardStats {
   totalMessages: number;
   uptime: number;
 }
-
