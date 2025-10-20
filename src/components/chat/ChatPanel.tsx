@@ -50,12 +50,24 @@ export function ChatPanel({
   return (
     <div className="flex-1 flex flex-col min-h-0 border-2 border-border rounded-lg">
       <div className="flex-1 flex flex-col space-y-4 min-h-0">
+        {!isConnected && (
+          <div className="p-3 bg-red-50 border-b border-red-200">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 rounded-full bg-red-500"></div>
+              <Text className="text-sm text-red-700">
+                Not connected to server
+              </Text>
+            </div>
+          </div>
+        )}
         <div className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="space-y-3">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <Text className="text-muted-foreground">
-                  Start a conversation
+                  {isConnected
+                    ? "Start a conversation"
+                    : "Connecting to server..."}
                 </Text>
               </div>
             ) : (
