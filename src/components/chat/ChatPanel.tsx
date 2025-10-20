@@ -60,8 +60,8 @@ export function ChatPanel({
             </div>
           </div>
         )}
-        <div className="flex-1 overflow-y-auto p-4 min-h-0">
-          <div className="space-y-3">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 min-h-0">
+          <div className="space-y-2 min-h-full">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <Text className="text-muted-foreground">
@@ -81,15 +81,15 @@ export function ChatPanel({
                 return (
                   <div
                     key={msg.id}
-                    className={`p-3 rounded ${
+                    className={`p-3 max-w-[80%] ${
                       isSystem
-                        ? "bg-muted text-muted-foreground text-center"
+                        ? "bg-muted text-muted-foreground text-center rounded-lg mx-auto"
                         : isOwnMessage
-                        ? "bg-primary text-primary-foreground ml-8"
-                        : "bg-secondary text-secondary-foreground mr-8"
+                        ? "bg-primary text-primary-foreground ml-auto rounded-t-lg rounded-br-none rounded-bl-lg"
+                        : "bg-secondary text-secondary-foreground mr-auto rounded-t-lg rounded-bl-none rounded-br-lg"
                     }`}
                   >
-                    <Text className="text-sm">
+                    <Text className="text-sm whitespace-pre-wrap wrap-break-word">
                       {!isSystem && (
                         <span className="font-medium">{msg.username}: </span>
                       )}
@@ -105,7 +105,7 @@ export function ChatPanel({
             <div ref={chatEndRef} />
           </div>
         </div>
-        <div className="flex items-center space-x-2 m-2 p-2 shrink-0 border-2 border-border rounded-lg">
+        <div className="flex items-center space-x-2 mx-4 mb-4 p-2 shrink-0 border-2 border-border rounded-lg">
           <Input
             type="text"
             value={messageInput}
