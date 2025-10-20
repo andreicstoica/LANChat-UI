@@ -93,7 +93,7 @@ export function ChatPanel({
             <div ref={chatEndRef} />
           </div>
         </div>
-        <div className="flex items-center space-x-2 p-2 shrink-0 border-2 border-border rounded-lg">
+        <div className="flex items-center space-x-2 m-2 p-2 shrink-0 border-2 border-border rounded-lg">
           <Input
             type="text"
             value={messageInput}

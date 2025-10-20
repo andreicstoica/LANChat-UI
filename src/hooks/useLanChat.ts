@@ -223,9 +223,8 @@ export function useLanChat(username: string, isRegistered: boolean) {
       return;
     }
 
-    socketRef.current.emit("message", {
+    socketRef.current.emit("chat", {
       content,
-      type: "chat",
     });
   };
 
