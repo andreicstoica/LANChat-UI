@@ -1,0 +1,136 @@
+import { Card } from "@/components/retroui/Card";
+import { Text } from "@/components/retroui/Text";
+import type { DashboardStats } from "@/types/chat";
+
+interface DashboardPanelProps {
+  stats: DashboardStats;
+  isConnected: boolean;
+}
+
+export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
+  const formatUptime = (uptimeSeconds: number) => {
+    if (!Number.isFinite(uptimeSeconds)) {
+      return "--";
+    }
+
+    const totalSeconds = Math.max(0, Math.floor(uptimeSeconds));
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const parts: string[] = [];
+
+    if (days) {
+      parts.push(`${days}d`);
+    }
+
+    if (hours) {
+      parts.push(`${hours}h`);
+    }
+
+    if (minutes) {
+      parts.push(`${minutes}m`);
+    }
+
+    if (!parts.length || seconds) {
+      parts.push(`${seconds}s`);
+    }
+
+    return parts.join(" ");
+  };
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <Card className={!isConnected ? "opacity-50" : ""}>
+        <Card.Header>
+          <Card.Title>Connected Users</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <Text
+            className={`text-3xl font-bold ${
+              isConnected ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            {isConnected ? stats.connectedUsers : "--"}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {isConnected ? "Active participants" : "Not connected"}
+          </Text>
+        </Card.Content>
+      </Card>
+
+      <Card className={!isConnected ? "opacity-50" : ""}>
+        <Card.Header>
+          <Card.Title>Total Messages</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <Text
+            className={`text-3xl font-bold ${
+              isConnected ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            {isConnected ? stats.totalMessages.toLocaleString() : "--"}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {isConnected ? "All-time in this room" : "Not connected"}
+          </Text>
+        </Card.Content>
+      </Card>
+
+      <Card className={!isConnected ? "opacity-50" : ""}>
+        <Card.Header>
+          <Card.Title>AI Agents</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <Text
+            className={`text-3xl font-bold ${
+              isConnected ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            {isConnected ? stats.connectedAgents : "--"}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {isConnected ? "Available agents" : "Not connected"}
+          </Text>
+        </Card.Content>
+      </Card>
+
+      <Card>
+        <Card.Header>
+          <Card.Title>Server Status</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div className="flex items-center space-x-2">
+            <div
+              className={`w-3 h-3 rounded-full ${
+                isConnected ? "bg-green-500" : "bg-red-500"
+              }`}
+            ></div>
+            <Text className="text-sm">
+              {isConnected ? "Connected" : "Not connected"}
+            </Text>
+          </div>
+        </Card.Content>
+      </Card>
+
+      <Card className={!isConnected ? "opacity-50" : ""}>
+        <Card.Header>
+          <Card.Title>Uptime</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <Text
+            className={`text-3xl font-bold ${
+              isConnected ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            {isConnected ? formatUptime(stats.uptime) : "--"}
+          </Text>
+          <Text className="text-sm text-muted-foreground">
+            {isConnected ? "Server uptime" : "Not connected"}
+          </Text>
+        </Card.Content>
+      </Card>
+    </div>
+  );
+}
