@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
-import { API_BASE_URL, fetchGameState } from "@/lib/api";
+import { API_BASE_URL, fetchGameState, restartGame } from "@/lib/api";
 import type {
   DashboardStats,
   GameState,
@@ -22,6 +22,8 @@ export function useLanChat(username: string, isRegistered: boolean) {
   const [dashboardStats, setDashboardStats] =
     useState<DashboardStats>(INITIAL_STATS);
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [isRestarting, setIsRestarting] = useState(false);
+  const [restartError, setRestartError] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -253,11 +255,58 @@ export function useLanChat(username: string, isRegistered: boolean) {
     });
   };
 
+  const handleRestart = async () => {
+    if (isRestarting) return;
+    
+    setIsRestarting(true);
+    setRestartError(null);
+    
+    try {
+      const result = await restartGame();
+      if (result) {
+        console.log('Game restarted successfully, new session ID:', result.sessionId);
+        
+        // Disconnect current socket
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+        
+        // Clear messages and reset state
+        setMessages([]);
+        setGameState(null);
+        setDashboardStats(INITIAL_STATS);
+        
+        // Reconnect after a brief delay
+        setTimeout(() => {
+          if (socketRef.current) {
+            socketRef.current.connect();
+          }
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Restart failed:', error);
+      if (error instanceof Error && error.message === 'restart_already_in_progress') {
+        setRestartError('Restart already in progress');
+        // Disable button briefly before retrying
+        setTimeout(() => {
+          setRestartError(null);
+        }, 3000);
+      } else {
+        setRestartError('Failed to restart game');
+      }
+    } finally {
+      setIsRestarting(false);
+    }
+  };
+
   return {
     messages,
     isConnected,
     dashboardStats,
     gameState,
     sendMessage,
+    handleRestart,
+    isRestarting,
+    restartError,
   };
 }
