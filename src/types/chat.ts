@@ -34,24 +34,33 @@ export interface DashboardStats {
   uptime: number;
 }
 
-export interface NPCState {
+export interface NPC {
   name: string;
-  mood: string;
-  location: string;
-  trustLevel: number; // -100 to 100
-  lastInteraction: string;
+  role: string;
+  personality: string;
 }
 
-export interface Quest {
-  id: string;
-  title: string;
+export interface LevelDescription {
+  name: string;
   description: string;
-  status: 'active' | 'completed' | 'failed';
+  objectives: string[];
 }
 
 export interface GameState {
-  currentScene: string;
-  activeQuests: Quest[];
-  npcStates: NPCState[];
+  // Level tracking
+  currentLevel: number;
+  levelName: string;
+  isFinalLevel: boolean;
+
+  // Player progress
+  learnedConcepts: string[];
+  npcTrustLevels: Record<string, number>; // -100 to 100
+
+  // Level descriptions
+  levelDescriptions: Record<string, LevelDescription>;
+
+  // NPC info
+  npcs: NPC[];
+
   gameMode: boolean;
 }

@@ -113,75 +113,134 @@ export function ChatPanel({
     return date.toLocaleTimeString();
   };
 
-  // Debug logging
-  console.log("ChatPanel gameState:", gameState);
-  console.log("gameState?.gameMode:", gameState?.gameMode);
-  console.log("gameState?.npcStates:", gameState?.npcStates);
+  // Helper function to get trust level color
+  const getTrustLevelColor = (trust: number): string => {
+    if (trust >= 70) return "text-green-600";
+    if (trust >= 30) return "text-yellow-600";
+    if (trust >= -30) return "text-orange-600";
+    return "text-red-600";
+  };
+
+  // Helper function to get trust level bar width
+  const getTrustLevelWidth = (trust: number): string => {
+    // Convert -100 to 100 range to 0-100% width
+    const percentage = Math.max(0, Math.min(100, ((trust + 100) / 200) * 100));
+    return `${percentage}%`;
+  };
+
+  const currentLevelData =
+    gameState?.levelDescriptions?.[gameState.currentLevel.toString()];
 
   return (
     <div className="flex-1 flex gap-4 min-h-0">
       {/* Game State Panel - 1/4 width */}
-      {gameState?.gameMode && (
-        <div className="w-1/4 shrink-0">
-          <div className="h-full bg-background border-2 border-border rounded-lg p-4 space-y-4 overflow-y-auto">
-            {/* Current Scene */}
-            <Card>
-              <Card.Header>
-                <Card.Title>Current Scene</Card.Title>
-              </Card.Header>
-              <Card.Content>
-                <Text className="text-sm">
-                  {gameState.currentScene || "Unknown"}
-                </Text>
-              </Card.Content>
-            </Card>
+      <div className="w-1/4 shrink-0">
+        <div className="h-full bg-background border-2 border-border rounded-lg p-4 space-y-4 overflow-y-auto">
+          {gameState?.gameMode ? (
+            /* Game Info */
+            <div>
+              <h2 className="text-xl font-bold">
+                Level {gameState.currentLevel + 1} /{" "}
+                {Object.keys(gameState.levelDescriptions).length}
+                {gameState.isFinalLevel && (
+                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded ml-2">
+                    Final Level
+                  </span>
+                )}
+              </h2>
+              <Text className="text-sm text-muted-foreground mt-1">
+                {gameState.levelName}
+              </Text>
 
-            {/* Active Quests */}
-            {gameState.activeQuests.length > 0 && (
-              <Card>
-                <Card.Header>
-                  <Card.Title>Active Quests</Card.Title>
-                </Card.Header>
-                <Card.Content className="space-y-2">
-                  {gameState.activeQuests.map((quest) => (
-                    <div
-                      key={quest.id}
-                      className="border-2 border-border rounded p-2"
-                    >
-                      <Text className="font-medium text-sm">{quest.title}</Text>
-                      <Text className="text-xs text-muted-foreground">
-                        {quest.description}
+              <div className="space-y-4">
+                {/* Characters */}
+                <div>
+                  <Text as="h3" className="mb-2">
+                    Characters
+                  </Text>
+                  <div className="space-y-2">
+                    {gameState.npcs.map((npc) => (
+                      <div key={npc.name}>
+                        <Text as="h3" className="text-sm font-medium">
+                          {npc.name}
+                        </Text>
+                        <Text className="text-xs text-muted-foreground">
+                          {npc.role}
+                        </Text>
+                        <Text className="text-xs text-muted-foreground italic">
+                          {npc.personality}
+                        </Text>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Objectives */}
+                {currentLevelData?.objectives &&
+                  currentLevelData.objectives.length > 0 && (
+                    <div>
+                      <Text as="h3" className="mb-2">
+                        Objectives
                       </Text>
-                    </div>
-                  ))}
-                </Card.Content>
-              </Card>
-            )}
+                      <ul className="space-y-1 ml-4">
+                        {currentLevelData.objectives.map((objective, index) => {
+                          // Check if objective is completed based on learned concepts or other criteria
+                          const isCompleted = gameState.learnedConcepts.some(
+                            (concept) =>
+                              objective
+                                .toLowerCase()
+                                .includes(concept.toLowerCase()) ||
+                              concept
+                                .toLowerCase()
+                                .includes(objective.toLowerCase())
+                          );
 
-            {/* Debug Info */}
-            <Card>
-              <Card.Header>
-                <Card.Title>Debug Info</Card.Title>
-              </Card.Header>
-              <Card.Content>
-                <Text className="text-xs">
-                  Game Mode: {gameState.gameMode ? "true" : "false"}
-                </Text>
-                <Text className="text-xs">
-                  Agents Count: {dashboardStats?.connectedAgents ?? 0}
-                </Text>
-              </Card.Content>
-            </Card>
-          </div>
+                          return (
+                            <li
+                              key={index}
+                              className={`text-xs flex items-start space-x-2 ${
+                                isCompleted
+                                  ? "text-green-600"
+                                  : "text-muted-foreground"
+                              }`}
+                            >
+                              <span
+                                className={`mt-0.5 ${
+                                  isCompleted
+                                    ? "text-green-600"
+                                    : "text-gray-400"
+                                }`}
+                              >
+                                {isCompleted ? "✓" : "○"}
+                              </span>
+                              <span
+                                className={isCompleted ? "line-through" : ""}
+                              >
+                                {objective}
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+              </div>
+            </div>
+          ) : (
+            /* Disconnected State */
+            <div className="flex items-center justify-center h-full">
+              <Text className="text-muted-foreground text-center">
+                {!isConnected
+                  ? "Connecting to server..."
+                  : "Waiting for game to start..."}
+              </Text>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Chat Panel - 3/4 width */}
-      <div
-        className={`flex-1 flex flex-col min-h-0 border-2 border-border rounded-lg ${
-          !gameState?.gameMode ? "w-full" : ""
-        }`}
-      >
+      <div className="flex-1 flex flex-col min-h-0 border-2 border-border rounded-lg">
         <div className="flex-1 flex flex-col space-y-4 min-h-0">
           {!isConnected && (
             <div className="p-3 bg-red-50 border-b border-red-200">
