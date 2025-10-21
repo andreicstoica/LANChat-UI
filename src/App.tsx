@@ -18,8 +18,16 @@ function App() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [messageInput, setMessageInput] = useState("");
 
-  const { messages, isConnected, dashboardStats, gameState, sendMessage } =
-    useLanChat(username, isRegistered);
+  const { 
+    messages, 
+    isConnected, 
+    dashboardStats, 
+    gameState, 
+    sendMessage,
+    handleRestart,
+    isRestarting,
+    restartError
+  } = useLanChat(username, isRegistered);
 
   const handleRegister = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -82,6 +90,9 @@ function App() {
                 <DashboardPanel
                   stats={dashboardStats}
                   isConnected={isConnected}
+                  onRestart={handleRestart}
+                  isRestarting={isRestarting}
+                  restartError={restartError}
                 />
               </TabsContent>
             </TabsPanels>

@@ -1,13 +1,23 @@
 import { Card } from "@/components/retroui/Card";
 import { Text } from "@/components/retroui/Text";
+import { Button } from "@/components/retroui/Button";
 import type { DashboardStats } from "@/types/chat";
 
 interface DashboardPanelProps {
   stats: DashboardStats;
   isConnected: boolean;
+  onRestart?: () => void;
+  isRestarting?: boolean;
+  restartError?: string | null;
 }
 
-export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
+export function DashboardPanel({
+  stats,
+  isConnected,
+  onRestart,
+  isRestarting = false,
+  restartError,
+}: DashboardPanelProps) {
   const formatUptime = (uptimeSeconds: number) => {
     if (!Number.isFinite(uptimeSeconds)) {
       return "--";
@@ -129,6 +139,29 @@ export function DashboardPanel({ stats, isConnected }: DashboardPanelProps) {
           <Text className="text-sm text-muted-foreground">
             {isConnected ? "Server uptime" : "Not connected"}
           </Text>
+        </Card.Content>
+      </Card>
+
+      <Card>
+        <Card.Header>
+          <Card.Title>Game Control</Card.Title>
+        </Card.Header>
+        <Card.Content>
+          <div className="space-y-2">
+            <Button
+              onClick={onRestart}
+              disabled={!isConnected || isRestarting}
+              variant="secondary"
+              className="w-full"
+            >
+              {isRestarting ? "Restarting..." : "Restart Game"}
+            </Button>
+            {restartError && (
+              <Text className="text-sm text-red-500 text-center">
+                {restartError}
+              </Text>
+            )}
+          </div>
         </Card.Content>
       </Card>
     </div>
