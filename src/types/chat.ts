@@ -40,6 +40,25 @@ export interface NPC {
   personality: string;
 }
 
+export interface Scene {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface NPCState {
+  id: string;
+  name: string;
+  mood?: string;
+}
+
+export interface Quest {
+  id: string;
+  title: string;
+  description?: string;
+  status: "active" | "completed" | "failed";
+}
+
 export interface LevelDescription {
   name: string;
   description: string;
@@ -61,6 +80,11 @@ export interface GameState {
 
   // NPC info
   npcs: NPC[];
+
+  // Scene and quest tracking
+  currentScene: Scene;
+  npcStates: Record<string, NPCState>;
+  activeQuests: Quest[];
 
   gameMode: boolean;
 }
