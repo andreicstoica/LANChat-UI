@@ -85,6 +85,7 @@ export function useLanChat(username: string, isRegistered: boolean) {
     };
 
     const handleGameState = (state: GameState) => {
+      console.log('Received game state via socket:', state);
       setGameState(state);
     };
 
@@ -220,10 +221,12 @@ export function useLanChat(username: string, isRegistered: boolean) {
     const fetchGameStateData = async () => {
       try {
         const state = await fetchGameState();
+        console.log('Fetched game state:', state);
         if (!aborted && state) {
           setGameState(state);
         }
-      } catch {
+      } catch (error) {
+        console.log('Game state fetch error:', error);
         // Game state fetch failure is not critical
       }
     };

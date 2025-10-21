@@ -3,7 +3,7 @@ import { Text } from "@/components/retroui/Text";
 import { Input } from "@/components/retroui/Input";
 import { Button } from "@/components/retroui/Button";
 import { Card } from "@/components/retroui/Card";
-import type { Message, GameState } from "@/types/chat";
+import type { Message, GameState, DashboardStats } from "@/types/chat";
 
 // Helper function to determine message color based on sender
 function getMessageColor(msg: Message, username: string): string {
@@ -66,31 +66,6 @@ function getMessageColor(msg: Message, username: string): string {
   return humanColors[Math.abs(hash) % humanColors.length];
 }
 
-// Helper functions for game state display
-function getNPCTypeColor(npcName: string) {
-  const npcTypes: Record<string, string> = {
-    "Honcho the GM": "bg-blue-600",
-    Elderwyn: "bg-cyan-500",
-    Thorne: "bg-purple-500",
-    Grimjaw: "bg-slate-600",
-  };
-  return npcTypes[npcName] || "bg-gray-500";
-}
-
-function formatTrustLevel(trust: number) {
-  if (trust >= 50) return "Trusted";
-  if (trust >= 0) return "Neutral";
-  if (trust >= -50) return "Suspicious";
-  return "Hostile";
-}
-
-function getTrustColor(trust: number) {
-  if (trust >= 50) return "text-green-600";
-  if (trust >= 0) return "text-yellow-600";
-  if (trust >= -50) return "text-orange-600";
-  return "text-red-600";
-}
-
 interface ChatPanelProps {
   messages: Message[];
   username: string;
@@ -99,6 +74,7 @@ interface ChatPanelProps {
   onSendMessage: () => void;
   isConnected: boolean;
   gameState?: GameState | null;
+  dashboardStats?: DashboardStats;
 }
 
 export function ChatPanel({
@@ -109,6 +85,7 @@ export function ChatPanel({
   onSendMessage,
   isConnected,
   gameState,
+  dashboardStats,
 }: ChatPanelProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -135,6 +112,11 @@ export function ChatPanel({
 
     return date.toLocaleTimeString();
   };
+
+  // Debug logging
+  console.log("ChatPanel gameState:", gameState);
+  console.log("gameState?.gameMode:", gameState?.gameMode);
+  console.log("gameState?.npcStates:", gameState?.npcStates);
 
   return (
     <div className="flex-1 flex gap-4 min-h-0">
@@ -176,52 +158,18 @@ export function ChatPanel({
               </Card>
             )}
 
-            {/* NPCs */}
+            {/* Debug Info */}
             <Card>
               <Card.Header>
-                <Card.Title>NPCs</Card.Title>
+                <Card.Title>Debug Info</Card.Title>
               </Card.Header>
-              <Card.Content className="space-y-3">
-                {gameState.npcStates.map((npc) => (
-                  <div
-                    key={npc.name}
-                    className="border-2 border-border rounded p-3"
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <div
-                        className={`w-3 h-3 rounded-full ${getNPCTypeColor(
-                          npc.name
-                        )}`}
-                      />
-                      <Text className="font-medium text-sm">{npc.name}</Text>
-                    </div>
-
-                    <div className="space-y-1">
-                      <Text className="text-xs">
-                        <span className="text-muted-foreground">Mood:</span>{" "}
-                        {npc.mood}
-                      </Text>
-                      <Text className="text-xs">
-                        <span className="text-muted-foreground">Location:</span>{" "}
-                        {npc.location}
-                      </Text>
-                      <Text
-                        className={`text-xs font-medium ${getTrustColor(
-                          npc.trustLevel
-                        )}`}
-                      >
-                        <span className="text-muted-foreground">Trust:</span>{" "}
-                        {formatTrustLevel(npc.trustLevel)} ({npc.trustLevel})
-                      </Text>
-                      <Text className="text-xs">
-                        <span className="text-muted-foreground">
-                          Last seen:
-                        </span>{" "}
-                        {new Date(npc.lastInteraction).toLocaleTimeString()}
-                      </Text>
-                    </div>
-                  </div>
-                ))}
+              <Card.Content>
+                <Text className="text-xs">
+                  Game Mode: {gameState.gameMode ? "true" : "false"}
+                </Text>
+                <Text className="text-xs">
+                  Agents Count: {dashboardStats?.connectedAgents ?? 0}
+                </Text>
               </Card.Content>
             </Card>
           </div>

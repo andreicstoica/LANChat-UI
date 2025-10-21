@@ -75,6 +75,7 @@ function App() {
                   onSendMessage={handleSendMessage}
                   isConnected={isConnected}
                   gameState={gameState}
+                  dashboardStats={dashboardStats}
                 />
               </TabsContent>
               <TabsContent>
