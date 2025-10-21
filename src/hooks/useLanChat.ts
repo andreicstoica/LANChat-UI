@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
-import { API_BASE_URL } from "@/lib/api";
+import { API_BASE_URL, fetchGameState } from "@/lib/api";
 import type {
   DashboardStats,
+  GameState,
   HistoryResponse,
   Message,
   StatsResponse,
@@ -20,6 +21,7 @@ export function useLanChat(username: string, isRegistered: boolean) {
   const [isConnected, setIsConnected] = useState(false);
   const [dashboardStats, setDashboardStats] =
     useState<DashboardStats>(INITIAL_STATS);
+  const [gameState, setGameState] = useState<GameState | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
@@ -82,16 +84,22 @@ export function useLanChat(username: string, isRegistered: boolean) {
       });
     };
 
+    const handleGameState = (state: GameState) => {
+      setGameState(state);
+    };
+
     socket.on("connect", handleConnect);
     socket.on("disconnect", handleDisconnect);
     socket.on("connect_error", handleDisconnect);
     socket.on("message", handleMessage);
+    socket.on("game:state", handleGameState);
 
     return () => {
       socket.off("connect", handleConnect);
       socket.off("disconnect", handleDisconnect);
       socket.off("connect_error", handleDisconnect);
       socket.off("message", handleMessage);
+      socket.off("game:state", handleGameState);
       socket.disconnect();
       socketRef.current = null;
       setIsConnected(false);
@@ -123,13 +131,13 @@ export function useLanChat(username: string, isRegistered: boolean) {
 
             const baseMessages = hasSelfJoin
               ? prevMessages.filter(
-                  (message) =>
-                    !(
-                      message.type === "join" &&
-                      message.metadata?.localGenerated &&
-                      message.metadata.joinedUser === username
-                    ),
-                )
+                (message) =>
+                  !(
+                    message.type === "join" &&
+                    message.metadata?.localGenerated &&
+                    message.metadata.joinedUser === username
+                  ),
+              )
               : prevMessages;
 
             const prevIds = new Set(baseMessages.map((message) => message.id));
@@ -209,12 +217,26 @@ export function useLanChat(username: string, isRegistered: boolean) {
       }
     };
 
+    const fetchGameStateData = async () => {
+      try {
+        const state = await fetchGameState();
+        if (!aborted && state) {
+          setGameState(state);
+        }
+      } catch {
+        // Game state fetch failure is not critical
+      }
+    };
+
     fetchStats();
-    const interval = setInterval(fetchStats, 15000);
+    fetchGameStateData();
+    const statsInterval = setInterval(fetchStats, 15000);
+    const gameStateInterval = setInterval(fetchGameStateData, 12000);
 
     return () => {
       aborted = true;
-      clearInterval(interval);
+      clearInterval(statsInterval);
+      clearInterval(gameStateInterval);
     };
   }, [isRegistered]);
 
@@ -232,6 +254,7 @@ export function useLanChat(username: string, isRegistered: boolean) {
     messages,
     isConnected,
     dashboardStats,
+    gameState,
     sendMessage,
   };
 }

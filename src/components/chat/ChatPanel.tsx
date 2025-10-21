@@ -4,6 +4,67 @@ import { Input } from "@/components/retroui/Input";
 import { Button } from "@/components/retroui/Button";
 import type { Message } from "@/types/chat";
 
+// Helper function to determine message color based on sender
+function getMessageColor(msg: Message, username: string): string {
+  const isOwnMessage = msg.username === username;
+  if (isOwnMessage) {
+    return "bg-primary text-primary-foreground ml-auto rounded-t-lg rounded-br-none rounded-bl-lg";
+  }
+
+  // Check if it's a system message
+  const isSystem =
+    msg.type === "system" || msg.type === "join" || msg.type === "leave";
+  if (isSystem) {
+    return "bg-muted text-muted-foreground text-center rounded-lg mx-auto";
+  }
+
+  // Check metadata for NPC type
+  const npcType = msg.metadata?.npcType;
+  if (npcType) {
+    switch (npcType) {
+      case "gm":
+        return "bg-blue-600 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg";
+      case "friendly":
+        return "bg-cyan-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg";
+      case "suspicious":
+        return "bg-purple-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg";
+      case "hostile":
+        return "bg-slate-600 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg";
+    }
+  }
+
+  // Check username against known NPCs
+  const npcColors: Record<string, string> = {
+    "Honcho the GM":
+      "bg-blue-600 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    Elderwyn:
+      "bg-cyan-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    Thorne:
+      "bg-purple-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    Grimjaw:
+      "bg-slate-600 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+  };
+
+  if (npcColors[msg.username]) {
+    return npcColors[msg.username];
+  }
+
+  // Default to human player colors (warm tones)
+  const humanColors = [
+    "bg-orange-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    "bg-amber-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    "bg-yellow-500 text-black mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+    "bg-red-500 text-white mr-auto rounded-t-lg rounded-bl-none rounded-br-lg",
+  ];
+
+  // Simple hash to consistently assign colors to usernames
+  let hash = 0;
+  for (let i = 0; i < msg.username.length; i++) {
+    hash = ((hash << 5) - hash + msg.username.charCodeAt(i)) & 0xffffffff;
+  }
+  return humanColors[Math.abs(hash) % humanColors.length];
+}
+
 interface ChatPanelProps {
   messages: Message[];
   username: string;
@@ -76,18 +137,12 @@ export function ChatPanel({
                   msg.type === "system" ||
                   msg.type === "join" ||
                   msg.type === "leave";
-                const isOwnMessage = msg.username === username;
+                const messageColorClass = getMessageColor(msg, username);
 
                 return (
                   <div
                     key={msg.id}
-                    className={`p-3 max-w-[80%] ${
-                      isSystem
-                        ? "bg-muted text-muted-foreground text-center rounded-lg mx-auto"
-                        : isOwnMessage
-                        ? "bg-primary text-primary-foreground ml-auto rounded-t-lg rounded-br-none rounded-bl-lg"
-                        : "bg-secondary text-secondary-foreground mr-auto rounded-t-lg rounded-bl-none rounded-br-lg"
-                    }`}
+                    className={`p-3 max-w-[80%] ${messageColorClass}`}
                   >
                     <Text className="text-sm whitespace-pre-wrap wrap-break-word">
                       {!isSystem && (
