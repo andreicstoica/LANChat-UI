@@ -2,8 +2,7 @@ import { useEffect, useRef, type KeyboardEvent } from "react";
 import { Text } from "@/components/retroui/Text";
 import { Input } from "@/components/retroui/Input";
 import { Button } from "@/components/retroui/Button";
-import { Card } from "@/components/retroui/Card";
-import type { Message, GameState, DashboardStats } from "@/types/chat";
+import type { Message, GameState } from "@/types/chat";
 
 // Helper function to determine message color based on sender
 function getMessageColor(msg: Message, username: string): string {
@@ -74,7 +73,6 @@ interface ChatPanelProps {
   onSendMessage: () => void;
   isConnected: boolean;
   gameState?: GameState | null;
-  dashboardStats?: DashboardStats;
 }
 
 export function ChatPanel({
@@ -85,7 +83,6 @@ export function ChatPanel({
   onSendMessage,
   isConnected,
   gameState,
-  dashboardStats,
 }: ChatPanelProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -111,21 +108,6 @@ export function ChatPanel({
     }
 
     return date.toLocaleTimeString();
-  };
-
-  // Helper function to get trust level color
-  const getTrustLevelColor = (trust: number): string => {
-    if (trust >= 70) return "text-green-600";
-    if (trust >= 30) return "text-yellow-600";
-    if (trust >= -30) return "text-orange-600";
-    return "text-red-600";
-  };
-
-  // Helper function to get trust level bar width
-  const getTrustLevelWidth = (trust: number): string => {
-    // Convert -100 to 100 range to 0-100% width
-    const percentage = Math.max(0, Math.min(100, ((trust + 100) / 200) * 100));
-    return `${percentage}%`;
   };
 
   const currentLevelData =
