@@ -18,10 +18,8 @@ function App() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [messageInput, setMessageInput] = useState("");
 
-  const { messages, isConnected, dashboardStats, sendMessage } = useLanChat(
-    username,
-    isRegistered,
-  );
+  const { messages, isConnected, dashboardStats, gameState, sendMessage } =
+    useLanChat(username, isRegistered);
 
   const handleRegister = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -55,37 +53,43 @@ function App() {
 
   return (
     <div className="h-screen bg-background p-8 overflow-hidden">
-      <div className="max-w-6xl mx-auto h-full flex flex-col">
+      <div className="max-w-7xl mx-auto h-full flex flex-col">
         <Text as="h1" className="mb-8 text-center shrink-0">
-          LANChat UI
+          {gameState?.gameMode ? "D&D Adventure" : "LANChat UI"}
         </Text>
-        <Tabs className="flex-1 flex flex-col min-h-0">
-          <div className="flex justify-center mb-6 shrink-0">
-            <TabsTriggerList>
-              <TabsTrigger>Chat</TabsTrigger>
-              <TabsTrigger>Dashboard</TabsTrigger>
-            </TabsTriggerList>
-          </div>
-          <TabsPanels className="flex-1 flex flex-col min-h-0">
-            <TabsContent className="flex-1 flex flex-col min-h-0">
-              <ChatPanel
-                messages={messages}
-                username={username}
-                messageInput={messageInput}
-                onMessageChange={setMessageInput}
-                onSendMessage={handleSendMessage}
-                isConnected={isConnected}
-              />
-            </TabsContent>
-            <TabsContent>
-              <DashboardPanel stats={dashboardStats} isConnected={isConnected} />
-            </TabsContent>
-          </TabsPanels>
-        </Tabs>
+        <div className="flex-1 min-h-0">
+          <Tabs className="h-full flex flex-col min-h-0">
+            <div className="flex justify-center mb-6 shrink-0">
+              <TabsTriggerList>
+                <TabsTrigger>Chat</TabsTrigger>
+                <TabsTrigger>Dashboard</TabsTrigger>
+              </TabsTriggerList>
+            </div>
+            <TabsPanels className="flex-1 flex flex-col min-h-0">
+              <TabsContent className="flex-1 flex flex-col min-h-0">
+                <ChatPanel
+                  messages={messages}
+                  username={username}
+                  messageInput={messageInput}
+                  onMessageChange={setMessageInput}
+                  onSendMessage={handleSendMessage}
+                  isConnected={isConnected}
+                  gameState={gameState}
+                  dashboardStats={dashboardStats}
+                />
+              </TabsContent>
+              <TabsContent>
+                <DashboardPanel
+                  stats={dashboardStats}
+                  isConnected={isConnected}
+                />
+              </TabsContent>
+            </TabsPanels>
+          </Tabs>
+        </div>
       </div>
     </div>
   );
 }
 
 export default App;
-
