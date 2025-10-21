@@ -139,7 +139,7 @@ export function ChatPanel({
           {gameState?.gameMode ? (
             /* Game Info */
             <div>
-              <h2 className="text-xl font-bold">
+              <Text as="h3" className="mb-2">
                 Level {gameState.currentLevel + 1} /{" "}
                 {Object.keys(gameState.levelDescriptions).length}
                 {gameState.isFinalLevel && (
@@ -147,8 +147,8 @@ export function ChatPanel({
                     Final Level
                   </span>
                 )}
-              </h2>
-              <Text className="text-sm text-muted-foreground mt-1">
+              </Text>
+              <Text className="text-muted-foreground font-bold text-xl mb-2">
                 {gameState.levelName}
               </Text>
 
@@ -160,14 +160,17 @@ export function ChatPanel({
                   </Text>
                   <div className="space-y-2">
                     {gameState.npcs.map((npc) => (
-                      <div key={npc.name}>
+                      <div
+                        key={npc.name}
+                        className="border-2 border-border rounded-lg p-3"
+                      >
                         <Text as="h3" className="text-sm font-medium">
                           {npc.name}
                         </Text>
-                        <Text className="text-xs text-muted-foreground">
+                        <Text className="text-sm text-muted-foreground">
                           {npc.role}
                         </Text>
-                        <Text className="text-xs text-muted-foreground italic">
+                        <Text className="text-sm text-muted-foreground italic">
                           {npc.personality}
                         </Text>
                       </div>
@@ -198,7 +201,7 @@ export function ChatPanel({
                           return (
                             <li
                               key={index}
-                              className={`text-xs flex items-start space-x-2 ${
+                              className={`text-sm flex items-start space-x-2 ${
                                 isCompleted
                                   ? "text-green-600"
                                   : "text-muted-foreground"
