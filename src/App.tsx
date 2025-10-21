@@ -10,7 +10,6 @@ import { Text } from "@/components/retroui/Text";
 import { RegistrationCard } from "@/components/chat/RegistrationCard";
 import { ChatPanel } from "@/components/chat/ChatPanel";
 import { DashboardPanel } from "@/components/chat/DashboardPanel";
-import { GameSidebar } from "@/components/chat/GameSidebar";
 import { useLanChat } from "@/hooks/useLanChat";
 
 function App() {
@@ -58,43 +57,34 @@ function App() {
         <Text as="h1" className="mb-8 text-center shrink-0">
           {gameState?.gameMode ? "D&D Adventure" : "LANChat UI"}
         </Text>
-        <div className="flex-1 flex gap-6 min-h-0">
-          {/* Left Sidebar - Game State */}
-          {gameState?.gameMode && (
-            <div className="shrink-0">
-              <GameSidebar gameState={gameState} />
+        <div className="flex-1 min-h-0">
+          <Tabs className="h-full flex flex-col min-h-0">
+            <div className="flex justify-center mb-6 shrink-0">
+              <TabsTriggerList>
+                <TabsTrigger>Chat</TabsTrigger>
+                <TabsTrigger>Dashboard</TabsTrigger>
+              </TabsTriggerList>
             </div>
-          )}
-
-          {/* Main Content Area */}
-          <div className="flex-1 min-w-0">
-            <Tabs className="h-full flex flex-col min-h-0">
-              <div className="flex justify-center mb-6 shrink-0">
-                <TabsTriggerList>
-                  <TabsTrigger>Chat</TabsTrigger>
-                  <TabsTrigger>Dashboard</TabsTrigger>
-                </TabsTriggerList>
-              </div>
-              <TabsPanels className="flex-1 flex flex-col min-h-0">
-                <TabsContent className="flex-1 flex flex-col min-h-0">
-                  <ChatPanel
-                    messages={messages}
-                    username={username}
-                    messageInput={messageInput}
-                    onMessageChange={setMessageInput}
-                    onSendMessage={handleSendMessage}
-                    isConnected={isConnected}
-                  />
-                </TabsContent>
-                <TabsContent>
-                  <DashboardPanel
-                    stats={dashboardStats}
-                    isConnected={isConnected}
-                  />
-                </TabsContent>
-              </TabsPanels>
-            </Tabs>
-          </div>
+            <TabsPanels className="flex-1 flex flex-col min-h-0">
+              <TabsContent className="flex-1 flex flex-col min-h-0">
+                <ChatPanel
+                  messages={messages}
+                  username={username}
+                  messageInput={messageInput}
+                  onMessageChange={setMessageInput}
+                  onSendMessage={handleSendMessage}
+                  isConnected={isConnected}
+                  gameState={gameState}
+                />
+              </TabsContent>
+              <TabsContent>
+                <DashboardPanel
+                  stats={dashboardStats}
+                  isConnected={isConnected}
+                />
+              </TabsContent>
+            </TabsPanels>
+          </Tabs>
         </div>
       </div>
     </div>
