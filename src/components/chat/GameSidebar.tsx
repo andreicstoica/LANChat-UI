@@ -1,6 +1,6 @@
 import { Card } from "@/components/retroui/Card";
 import { Text } from "@/components/retroui/Text";
-import type { GameState } from "@/types/chat";
+import type { GameState, Quest } from "@/types/chat";
 
 interface GameSidebarProps {
   gameState: GameState | null;
@@ -21,7 +21,9 @@ export function GameSidebar({ gameState }: GameSidebarProps) {
           <Card.Title>Current Scene</Card.Title>
         </Card.Header>
         <Card.Content>
-          <Text className="text-sm">{gameState.currentScene || "Unknown"}</Text>
+          <Text className="text-sm">
+            {gameState.currentScene?.name || "Unknown"}
+          </Text>
         </Card.Content>
       </Card>
 
@@ -35,7 +37,7 @@ export function GameSidebar({ gameState }: GameSidebarProps) {
             Game Mode: {gameState.gameMode ? "true" : "false"}
           </Text>
           <Text className="text-sm">
-            Agents Count: {gameState.npcStates.length}
+            Agents Count: {Object.keys(gameState.npcStates).length}
           </Text>
         </Card.Content>
       </Card>
@@ -47,7 +49,7 @@ export function GameSidebar({ gameState }: GameSidebarProps) {
             <Card.Title>Active Quests</Card.Title>
           </Card.Header>
           <Card.Content className="space-y-2">
-            {gameState.activeQuests.map((quest) => (
+            {gameState.activeQuests.map((quest: Quest) => (
               <div
                 key={quest.id}
                 className="border-2 border-border rounded p-2"

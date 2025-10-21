@@ -18,15 +18,15 @@ function App() {
   const [isRegistered, setIsRegistered] = useState(false);
   const [messageInput, setMessageInput] = useState("");
 
-  const { 
-    messages, 
-    isConnected, 
-    dashboardStats, 
-    gameState, 
+  const {
+    messages,
+    isConnected,
+    dashboardStats,
+    gameState,
     sendMessage,
     handleRestart,
     isRestarting,
-    restartError
+    restartError,
   } = useLanChat(username, isRegistered);
 
   const handleRegister = (event: FormEvent<HTMLFormElement>) => {
@@ -83,7 +83,6 @@ function App() {
                   onSendMessage={handleSendMessage}
                   isConnected={isConnected}
                   gameState={gameState}
-                  dashboardStats={dashboardStats}
                 />
               </TabsContent>
               <TabsContent>
